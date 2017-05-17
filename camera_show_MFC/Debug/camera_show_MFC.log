@@ -1,0 +1,54 @@
+﻿生成启动时间为 2017/5/17 11:29:47。
+     1>项目“F:\vs2010_workspace\camera_show_MFC\camera_show_MFC\camera_show_MFC.vcxproj”在节点 2 上(rebuild 个目标)。
+     1>_PrepareForClean:
+         正在删除文件“Debug\camera_show_MFC.lastbuildstate”。
+       InitializeBuildStatus:
+         正在创建“Debug\camera_show_MFC.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _CRT_SECURE_NO_WARNINGS /D _MBCS /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"StdAfx.h" /Fp"Debug\camera_show_MFC.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _CRT_SECURE_NO_WARNINGS /D _MBCS /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\camera_show_MFC.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt CalibDlg.cpp camera_show_MFC.cpp camera_show_MFCDlg.cpp CvvImage.cpp ShotDlg.cpp StereoCali.cpp
+         StereoCali.cpp
+         ShotDlg.cpp
+         CvvImage.cpp
+         camera_show_MFCDlg.cpp
+         camera_show_MFC.cpp
+         CalibDlg.cpp
+         正在生成代码...
+       ResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D _DEBUG /D _AFXDLL /l"0x0804" /IDebug\ /nologo /fo"Debug\camera_show_MFC.res" camera_show_MFC.rc 
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\camera_show_MFC.exe.embed.manifest.res" Debug\camera_show_MFC_manifest.rc 
+       Link:
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\vs2010_workspace\camera_show_MFC\Debug\camera_show_MFC.exe" /INCREMENTAL /NOLOGO opencv_ml2411d.lib opencv_calib3d2411d.lib opencv_contrib2411d.lib opencv_core2411d.lib opencv_features2d2411d.lib opencv_flann2411d.lib opencv_gpu2411d.lib opencv_highgui2411d.lib opencv_imgproc2411d.lib opencv_legacy2411d.lib opencv_objdetect2411d.lib opencv_ts2411d.lib opencv_video2411d.lib opencv_nonfree2411d.lib opencv_ocl2411d.lib opencv_photo2411d.lib opencv_stitching2411d.lib opencv_superres2411d.lib opencv_videostab2411d.lib opencv_objdetect2411.lib opencv_ts2411.lib opencv_video2411.lib opencv_nonfree2411.lib opencv_ocl2411.lib opencv_photo2411.lib opencv_stitching2411.lib opencv_superres2411.lib opencv_videostab2411.lib opencv_calib3d2411.lib opencv_contrib2411.lib opencv_core2411.lib opencv_features2d2411.lib opencv_flann2411.lib opencv_gpu2411.lib opencv_highgui2411.lib opencv_imgproc2411.lib opencv_legacy2411.lib opencv_ml2411.lib /MANIFEST /ManifestFile:"Debug\camera_show_MFC.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"F:\vs2010_workspace\camera_show_MFC\Debug\camera_show_MFC.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\vs2010_workspace\camera_show_MFC\Debug\camera_show_MFC.lib" /MACHINE:X86 Debug\camera_show_MFC.res
+         Debug\camera_show_MFC.exe.embed.manifest.res
+         Debug\CalibDlg.obj
+         Debug\camera_show_MFC.obj
+         Debug\camera_show_MFCDlg.obj
+         Debug\CvvImage.obj
+         Debug\ShotDlg.obj
+         Debug\stdafx.obj
+         Debug\StereoCali.obj
+       Manifest:
+         正在删除文件“Debug\camera_show_MFC.exe.embed.manifest”。
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\camera_show_MFC.exe.embed.manifest" /manifest Debug\camera_show_MFC.exe.intermediate.manifest "D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Include\Manifest\dpiaware.manifest"
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\camera_show_MFC.exe.embed.manifest.res" Debug\camera_show_MFC_manifest.rc 
+       LinkEmbedManifest:
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\vs2010_workspace\camera_show_MFC\Debug\camera_show_MFC.exe" /INCREMENTAL /NOLOGO opencv_ml2411d.lib opencv_calib3d2411d.lib opencv_contrib2411d.lib opencv_core2411d.lib opencv_features2d2411d.lib opencv_flann2411d.lib opencv_gpu2411d.lib opencv_highgui2411d.lib opencv_imgproc2411d.lib opencv_legacy2411d.lib opencv_objdetect2411d.lib opencv_ts2411d.lib opencv_video2411d.lib opencv_nonfree2411d.lib opencv_ocl2411d.lib opencv_photo2411d.lib opencv_stitching2411d.lib opencv_superres2411d.lib opencv_videostab2411d.lib opencv_objdetect2411.lib opencv_ts2411.lib opencv_video2411.lib opencv_nonfree2411.lib opencv_ocl2411.lib opencv_photo2411.lib opencv_stitching2411.lib opencv_superres2411.lib opencv_videostab2411.lib opencv_calib3d2411.lib opencv_contrib2411.lib opencv_core2411.lib opencv_features2d2411.lib opencv_flann2411.lib opencv_gpu2411.lib opencv_highgui2411.lib opencv_imgproc2411.lib opencv_legacy2411.lib opencv_ml2411.lib /MANIFEST /ManifestFile:"Debug\camera_show_MFC.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"F:\vs2010_workspace\camera_show_MFC\Debug\camera_show_MFC.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\vs2010_workspace\camera_show_MFC\Debug\camera_show_MFC.lib" /MACHINE:X86 Debug\camera_show_MFC.res
+         Debug\camera_show_MFC.exe.embed.manifest.res
+         Debug\CalibDlg.obj
+         Debug\camera_show_MFC.obj
+         Debug\camera_show_MFCDlg.obj
+         Debug\CvvImage.obj
+         Debug\ShotDlg.obj
+         Debug\stdafx.obj
+         Debug\StereoCali.obj
+         camera_show_MFC.vcxproj -> F:\vs2010_workspace\camera_show_MFC\Debug\camera_show_MFC.exe
+       FinalizeBuildStatus:
+         正在删除文件“Debug\camera_show_MFC.unsuccessfulbuild”。
+         正在对“Debug\camera_show_MFC.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“F:\vs2010_workspace\camera_show_MFC\camera_show_MFC\camera_show_MFC.vcxproj”(rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:19.11
