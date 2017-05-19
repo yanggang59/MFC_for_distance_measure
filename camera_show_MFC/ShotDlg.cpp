@@ -19,6 +19,8 @@ IMPLEMENT_DYNAMIC(CShotDlg, CDialog)
 
 CShotDlg::CShotDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CShotDlg::IDD, pParent)
+	, str_Basename1(_T(""))
+	, str_Basename2(_T(""))
 {
 
 }
@@ -30,6 +32,8 @@ CShotDlg::~CShotDlg()
 void CShotDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_BASENAME1, str_Basename1);
+	DDX_Text(pDX, IDC_BASENAME2, str_Basename2);
 }
 
 
@@ -44,6 +48,24 @@ END_MESSAGE_MAP()
  
 void CShotDlg::OnBnClickedSaveimage()
 {
+	UpdateData(TRUE);
+	//if(str_Basename1==""&&str_Basename2=="")
+	if(!m_buffer1.empty())
+	{
+		if(str_Basename1=="")
+		{
+			AfxMessageBox("Please Input basename for Image 1");
+			return;
+		}
+	}
+	if(!m_buffer1.empty())
+	{
+		if(str_Basename2=="")
+		{
+			AfxMessageBox("Please Input basename for Image 2");
+			return;
+		}
+	}
  char szDir[MAX_PATH]; 
  BROWSEINFO bi; 
  ITEMIDLIST *pidl;
@@ -70,32 +92,28 @@ void CShotDlg::OnBnClickedSaveimage()
 	sprintf(buff,"%02d", imageCount);
 	string m_int2str(buff);		
 	string savePath =m_cstrSavePath.GetBuffer(0);		//将CString转化为string,保存的地址，也就是文件夹
-	if(-1==nIndx)
+	if(m_buffer1.empty()&&m_buffer2.empty())
 	{
 	AfxMessageBox("No Picture Taken");
+	return;
 	}
-	if(0==nIndx)    //
+	if(!m_buffer1.empty())    //
 	{
-	string saveFileName=savePath+"\\left"+m_int2str+".jpg";
+		string saveFileName=savePath+"\\"+str_Basename1.GetBuffer(0)+m_int2str+".jpg";
 	imwrite(saveFileName,m_buffer1);
 	}
-	if(1==nIndx)
+	if(!m_buffer2.empty())
 	{
-		string saveFileName=savePath+"\\right"+m_int2str+".jpg";
+		string saveFileName=savePath+"\\"+str_Basename2.GetBuffer(0)+m_int2str+".jpg";
 		imwrite(saveFileName,m_buffer2);
 	}
-	if(2==nIndx) //左右相机都被选中
-	{
-	string saveFileName=savePath+"\\left"+m_int2str+".jpg";
-	imwrite(saveFileName,m_buffer1);
+	//if(2==nIndx) //左右相机都被选中
+	//{
+	//string saveFileName=savePath+"\\left"+m_int2str+".jpg";
+	//imwrite(saveFileName,m_buffer1);
 
-	saveFileName=savePath+"\\right"+m_int2str+".jpg";
-	imwrite(saveFileName,m_buffer2);
-
-	}
-
-
-
+	//saveFileName=savePath+"\\right"+m_int2str+".jpg";
+	//imwrite(saveFileName,m_buffer2);
 	imageCount++;//记录拍照的张数
 }
 
@@ -103,19 +121,21 @@ void CShotDlg::OnBnClickedSaveimage()
 BOOL CShotDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-	if(0==nIndx)
+	/*if(!m_buffer1.empty())
 	{
 		showImage(m_buffer1,IDC_CAMERA1);
 	}
-	if(1==nIndx)
+	if(!m_buffer2.empty())
 	{
 		showImage(m_buffer2,IDC_CAMERA2);
-	}
-	if(2==nIndx)
+	}*/
+	/*if(2==nIndx)
 	{
 		showImage(m_buffer1,IDC_CAMERA1);
 		showImage(m_buffer2,IDC_CAMERA2);
-	}
+	}*/
+	GetDlgItem(IDC_BASENAME1)->SetWindowText("left");//将basename初始化为“”（空）
+	GetDlgItem(IDC_BASENAME2)->SetWindowText("right");//将basename初始化为“”（空）
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -138,18 +158,19 @@ void CShotDlg::showImage(Mat src, UINT ID)
 
 void CShotDlg::OnBnClickedShowimg()
 {
-	if(0==nIndx)
+	if(!m_buffer1.empty())
 	{
 		showImage(m_buffer1,IDC_CAMERA1);
 	}
-	if(1==nIndx)
+
+	if(!m_buffer2.empty())
 	{
 		showImage(m_buffer2,IDC_CAMERA2);
 	}
-	if(2==nIndx)
+
+	if(m_buffer1.empty()&&m_buffer2.empty())
 	{
-		showImage(m_buffer1,IDC_CAMERA1);
-		showImage(m_buffer2,IDC_CAMERA2);
+		AfxMessageBox("No photo was taken");
 	}
 }
 
@@ -157,7 +178,7 @@ void CShotDlg::OnBnClickedShowimg()
 int CALLBACK CShotDlg::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM  lpData)
 {
 	
-	 char szPath[] = "E:\\pictures";
+	char szPath[] = "E:\\pictures";
     switch(uMsg)
     {
          

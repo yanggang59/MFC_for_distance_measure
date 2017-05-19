@@ -6,6 +6,7 @@
 #include "camera_show_MFC.h"
 #include "camera_show_MFCDlg.h"
 #include "CvvImage.h"
+#include <fstream>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -36,8 +37,38 @@ Ccamera_show_MFCApp theApp;
 Mat frame1,frame2;			//左右相机的图像
 int nIndx;							//相机索引
 Mat m_buffer1,m_buffer2;//拍照时用来存储临时照片的
+bool isOpen=false; //判断相机是否打开
+Size imageSize;//图片的大小，对于我的罗技相机来说是640*480
+ofstream fout;   //用来保存单个摄像头标定文件的ofstream对象
+
+/*相机的内外参数*/
+Mat cameraMatrix=Mat(3,3,CV_32FC1,Scalar::all(0)); /* 摄像机内参数矩阵 */  
+Mat distCoeffs=Mat(1,5,CV_32FC1,Scalar::all(0)); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */  
+vector<Mat> tvecsMat;  /* 每幅图像的旋转向量 */  
+vector<Mat> rvecsMat; /* 每幅图像的平移向量 */ 
+
+
+
+/*双目中相机的内参*/
+Mat cameraMatrixL;
+Mat distCoeffL;
+
+Mat cameraMatrixR;
+Mat distCoeffR;
+
+ vector<Mat> tvecsMatL;  /* 每幅左相机图像的旋转向量 */  
+ vector<Mat> rvecsMatL; /* 每幅左相机图像的平移向量 */ 
+ vector<Mat> tvecsMatR;  /* 每幅右相机图像的旋转向量 */  
+ vector<Mat> rvecsMatR; /* 每幅右相机图像的旋转向量 */ 
+
+
+ Mat R, T, E, F;    //R 旋转矢量 T平移矢量 E本征矩阵 F基础矩阵
+
+ofstream fout_stereo; //用来保存两个摄像头标定文件的ofstream对象
 
 // Ccamera_show_MFCApp 初始化
+
+
 
 BOOL Ccamera_show_MFCApp::InitInstance()
 {

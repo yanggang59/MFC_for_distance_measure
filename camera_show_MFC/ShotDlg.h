@@ -25,4 +25,6 @@ public:
 	void showImage(Mat src, UINT ID);
 	afx_msg void OnBnClickedShowimg();
 	static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM  lpData);
+	CString str_Basename1;
+	CString str_Basename2;
 };

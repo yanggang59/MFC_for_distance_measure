@@ -32,7 +32,7 @@ using namespace std;
 VideoCapture cap1,cap2;   //用来打开相机的
 VideoWriter writer1("E:\\test1.avi",CV_FOURCC('X','V','I','D'),30,Size(640,480),true);
 VideoWriter writer2("E:\\test2.avi",CV_FOURCC('X','V','I','D'),30,Size(640,480),true);
-
+//isOpen=false;
 
 
 
@@ -82,7 +82,7 @@ BOOL Ccamera_show_MFCDlg::OnInitDialog()
 	pComb->AddString("2");
 	pComb->AddString("Both");
 	pComb->SetCurSel(2);			//默认设置为Both模式，即两个相机都选中
-	
+	nIndx=pComb->GetCurSel();
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -134,25 +134,19 @@ void Ccamera_show_MFCDlg::OnBnClickedOk()
 
 void Ccamera_show_MFCDlg::OnBnClickedOpen()
 {
-	
-	//cap.open(0);//打开第一个摄像头
-	//cap>>frame;
-	//if(frame.empty())
-	//	return;
-	//showImg(frame,IDC_CAMERA1);
-
-	//SetTimer(1,30,NULL);
-	CComboBox *pComb=(CComboBox *)GetDlgItem(IDC_CAMERAINDEX);
-	nIndx=pComb->GetCurSel();      //选中的相机，注意nIndex在前面定义为全局变量了
+	CComboBox* pComb=(CComboBox *)GetDlgItem(IDC_CAMERAINDEX);
+	nIndx=pComb->GetCurSel();
 	if(-1==nIndx)		//如果没有选中
 	{
-		AfxMessageBox("You haven't chosen any camera");
+		//AfxMessageBox("You haven't chosen any camera");
+		AfxMessageBox("请先选择相机！！！");
 		return;
 	}
 
 	if(0==nIndx)			//选中1号相机
 	{
-	cap1.open(nIndx);
+	cap1.open(0);
+	isOpen=true;
 	cap1>>frame1;
 	if(frame1.empty())
 	{
@@ -164,7 +158,8 @@ void Ccamera_show_MFCDlg::OnBnClickedOpen()
 
 	if(1==nIndx)				 //选中2号相机
 	{
-	cap2.open(nIndx);
+	cap2.open(1);
+	isOpen=true;		//相机处于打开状态
 	cap2>>frame2;
 	if(frame2.empty())
 	{
@@ -173,10 +168,9 @@ void Ccamera_show_MFCDlg::OnBnClickedOpen()
 	showImg(frame2,IDC_CAMERA2);
 	SetTimer(2,30,NULL);
 	}
-
-
 	if(nIndx==2)
 	{
+	isOpen=true;				//相机处于打开状态
 	cap1.open(0);
 	cap1>>frame1;
 	if(frame1.empty())
@@ -194,9 +188,6 @@ void Ccamera_show_MFCDlg::OnBnClickedOpen()
 	}
 	showImg(frame2,IDC_CAMERA2);
 	SetTimer(2,30,NULL);
-
-
-
 }
 
 
@@ -256,7 +247,9 @@ void Ccamera_show_MFCDlg::OnTimer(UINT_PTR nIDEvent)
 
 void Ccamera_show_MFCDlg::OnBnClickedClose()
 {
-	Mat gray(Size(500,400),CV_32FC3, Scalar(120, 120,120));
+	if(isOpen)
+	{
+	Mat gray(Size(500,400),CV_32FC3, Scalar(15,15,15));
 	cap1.release();								//释放VideoCapture资源
 	showImg(gray,IDC_CAMERA1);     
 	KillTimer(1);
@@ -267,14 +260,30 @@ void Ccamera_show_MFCDlg::OnBnClickedClose()
 
 	KillTimer(3);
 	KillTimer(4);
+
+	isOpen=false;
+	}
+	else
+	{
+		//AfxMessageBox("The camera is closed,no need to close again");
+		AfxMessageBox("摄像头已经处于关闭状态");
+		return;
+	}
 }
 
 
 void Ccamera_show_MFCDlg::OnBnClickedVideo()
 {
+	if(!isOpen)
+	{
+		//AfxMessageBox("Not Videoing,Moron,Open the camera first");
+		AfxMessageBox("请先打开摄像头");
+		return;
+	}
 	if(-1==nIndx)
 		{
-			AfxMessageBox("you haven't selected any camera");
+			//AfxMessageBox("you haven't selected any camera");
+			AfxMessageBox("请先选择相机");
 		}
 	if(0==nIndx)
 	{
@@ -325,7 +334,6 @@ void Ccamera_show_MFCDlg::OnBnClickedCalib()
 {
 	CCalibDlg caliDlg;
 	caliDlg.DoModal();
-
 }
 
 
@@ -338,10 +346,17 @@ void Ccamera_show_MFCDlg::OnBnClickedStereoCali()
 
 void Ccamera_show_MFCDlg::OnBnClickedShot()
 {
+	if(!isOpen)
+	{
+		//AfxMessageBox("Not Videoing ,Fool,Open the camera first");
+		AfxMessageBox("请先打开摄像头");
+		return;
+	}
 	
 	if(-1==nIndx)
 	{
 		AfxMessageBox("Please at lease select a camera");
+		return;
 	}
 	if(0==nIndx)				//选择的是1号相机
 	{

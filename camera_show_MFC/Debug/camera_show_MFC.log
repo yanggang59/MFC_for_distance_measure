@@ -1,4 +1,4 @@
-﻿生成启动时间为 2017/5/17 11:29:47。
+﻿生成启动时间为 2017/5/19 11:40:45。
      1>项目“F:\vs2010_workspace\camera_show_MFC\camera_show_MFC\camera_show_MFC.vcxproj”在节点 2 上(rebuild 个目标)。
      1>_PrepareForClean:
          正在删除文件“Debug\camera_show_MFC.lastbuildstate”。
@@ -9,11 +9,15 @@
          stdafx.cpp
          D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _CRT_SECURE_NO_WARNINGS /D _MBCS /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\camera_show_MFC.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt CalibDlg.cpp camera_show_MFC.cpp camera_show_MFCDlg.cpp CvvImage.cpp ShotDlg.cpp StereoCali.cpp
          StereoCali.cpp
+     1>f:\vs2010_workspace\camera_show_mfc\camera_show_mfc\stereocali.cpp(100): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+     1>f:\vs2010_workspace\camera_show_mfc\camera_show_mfc\stereocali.cpp(100): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
          ShotDlg.cpp
          CvvImage.cpp
          camera_show_MFCDlg.cpp
          camera_show_MFC.cpp
          CalibDlg.cpp
+     1>f:\vs2010_workspace\camera_show_mfc\camera_show_mfc\calibdlg.cpp(115): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+     1>f:\vs2010_workspace\camera_show_mfc\camera_show_mfc\calibdlg.cpp(115): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
          正在生成代码...
        ResourceCompile:
          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D _DEBUG /D _AFXDLL /l"0x0804" /IDebug\ /nologo /fo"Debug\camera_show_MFC.res" camera_show_MFC.rc 
@@ -51,4 +55,4 @@
 
 生成成功。
 
-已用时间 00:00:19.11
+已用时间 00:00:12.19
