@@ -66,6 +66,7 @@ void CShotDlg::OnBnClickedSaveimage()
 			return;
 		}
 	}
+
  char szDir[MAX_PATH]; 
  BROWSEINFO bi; 
  ITEMIDLIST *pidl;
@@ -92,6 +93,7 @@ void CShotDlg::OnBnClickedSaveimage()
 	sprintf(buff,"%02d", imageCount);
 	string m_int2str(buff);		
 	string savePath =m_cstrSavePath.GetBuffer(0);		//将CString转化为string,保存的地址，也就是文件夹
+
 	if(m_buffer1.empty()&&m_buffer2.empty())
 	{
 	AfxMessageBox("No Picture Taken");

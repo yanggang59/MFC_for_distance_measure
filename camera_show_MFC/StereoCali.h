@@ -38,4 +38,5 @@ public:
 	void setVoidPath(CString & strPath);
 	void cornerDetection(CString& picPath,CString strBasename,int imageCount,vector<vector<Point2f>> & image_points_seq);
 	void getRealCoor(vector<vector<Point3f>> &object_points,int image_count,Size board_size,Size square_size);
+	afx_msg void OnBnClickedRectify();
 };

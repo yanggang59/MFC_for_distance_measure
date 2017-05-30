@@ -38,6 +38,7 @@ Mat frame1,frame2;			//左右相机的图像
 int nIndx;							//相机索引
 Mat m_buffer1,m_buffer2;//拍照时用来存储临时照片的
 bool isOpen=false; //判断相机是否打开
+bool isLeftOpen,isRightOpen;//分别用来判断左右相机是否打开
 Size imageSize;//图片的大小，对于我的罗技相机来说是640*480
 ofstream fout;   //用来保存单个摄像头标定文件的ofstream对象
 
@@ -49,8 +50,8 @@ vector<Mat> rvecsMat; /* 每幅图像的平移向量 */
 
 
 
-/*双目中相机的内参*/
-Mat cameraMatrixL;
+/*下面是双目中的一些变量*/
+Mat cameraMatrixL;//相机的内参
 Mat distCoeffL;
 
 Mat cameraMatrixR;
@@ -63,13 +64,24 @@ Mat distCoeffR;
 
 
  Mat R, T, E, F;    //R 旋转矢量 T平移矢量 E本征矩阵 F基础矩阵
+ Rect validROIL;  //图像校正之后，会对图像进行裁剪，这里的validROI就是指裁剪之后的区域  
+ Rect validROIR;
 
-ofstream fout_stereo; //用来保存两个摄像头标定文件的ofstream对象
+ Mat mapLx, mapLy, mapRx, mapRy;     	//映射表  
+ Mat Rl, Rr, Pl, Pr, Q;              					//校正旋转矩阵R，投影矩阵P 重投影矩阵Q
+//ofstream fout_stereo; //用来保存两个摄像头标定文件的ofstream对象
+
+bool isStereoRectified=false;//判断是否已经经过立体校正，这样可以决定能否显示深度图像
+Mat grayImageL,grayImageR;//用来存储左右相机图像转换成的灰度图像
+Mat rectifyImageL,rectifyImageR;//用来存储左右相机图像转换成的灰度图像校正后的图像
+Mat disp,disp8;   //存储视差图
+int numberOfDisparities=0,SADWindowSize=0;//用来设置StereoBM对象的参数的；
+bool isFileRead=false;//是否已经读过相机的参数文件
+
+
+
 
 // Ccamera_show_MFCApp 初始化
-
-
-
 BOOL Ccamera_show_MFCApp::InitInstance()
 {
 	// 如果一个运行在 Windows XP 上的应用程序清单指定要

@@ -45,4 +45,8 @@ public:
 	afx_msg void OnBnClickedStereoCali();
 	afx_msg void OnBnClickedShot();
 	
-};
+	afx_msg void OnBnClickedShowdisparity();
+	void setBM(StereoBM & bm);
+	StereoBM bm;//StereoBM对象，用来立体匹配
+	afx_msg void OnBnClickedReadfile();
+ };

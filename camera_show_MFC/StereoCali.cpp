@@ -46,6 +46,7 @@ BEGIN_MESSAGE_MAP(CStereoCali, CDialog)
 	ON_BN_CLICKED(IDC_STARTCALI, &CStereoCali::OnBnClickedStartcali)
 	ON_BN_CLICKED(IDC_SAVEFILE, &CStereoCali::OnBnClickedSavefile)
 	ON_BN_CLICKED(IDC_OPENFILE, &CStereoCali::OnBnClickedOpenfile)
+	ON_BN_CLICKED(IDC_RECTIFY, &CStereoCali::OnBnClickedRectify)
 END_MESSAGE_MAP()
 
 
@@ -87,6 +88,15 @@ void CStereoCali::OnBnClickedStartcali()
 		return;
 	}
 
+	/*禁止所有按钮动作*/
+	CButton *b_startCali=(CButton*)GetDlgItem(IDC_STARTCALI);//IDC_STARTCALI为立体标定按钮的ID
+	CButton *b_stereoRectify=(CButton*)GetDlgItem(IDC_RECTIFY);//IDC_RECTIFY为立体校正按钮
+	CButton *b_saveFile=(CButton*)GetDlgItem(IDC_SAVEFILE);//IDC_SAVEFILE为保存数据按钮
+
+	b_startCali->EnableWindow(FALSE);          
+	b_saveFile->EnableWindow(FALSE);
+	b_stereoRectify->EnableWindow(FALSE);
+
 
 	/*开始角点检测*/
 	GetDlgItem(IDC_STATUSBAR)->SetWindowText("正在检测角点");
@@ -121,6 +131,10 @@ void CStereoCali::OnBnClickedStartcali()
         TermCriteria(TermCriteria::COUNT + TermCriteria::EPS, 100, 1e-5));  
 
 	GetDlgItem(IDC_STATUSBAR)->SetWindowText("立体标定完成");
+
+	
+	
+	b_stereoRectify->EnableWindow(TRUE);
 }
 
 
@@ -134,9 +148,11 @@ void CStereoCali::OnBnClickedSavefile()
 		CString filePath ;
 		if(result==IDOK)  filePath= saveFileDlg.GetPathName();  		
 	    filePath.Replace("\\","\\\\");
-		fout_stereo = ofstream(filePath.GetBuffer(0));  /* 保存标定结果的文件 */  
+	//	fout_stereo = ofstream(filePath.GetBuffer(0));  /* 保存标定结果的文件 */  
 
-	   fout_stereo<<"--------------------左相机的参数-------------------"<<endl;     
+		FileStorage fs(filePath.GetBuffer(0), FileStorage::WRITE);
+
+	   /*fout_stereo<<"--------------------左相机的参数-------------------"<<endl;     
 	   fout_stereo<<"相机内参数矩阵：\n"<<endl;     
 	   fout_stereo<<cameraMatrixL<<endl<<endl;     
        fout_stereo<<"畸变系数：\n";     
@@ -160,8 +176,32 @@ void CStereoCali::OnBnClickedSavefile()
 	   fout_stereo<<"基本矩阵"<<endl; 
 	   fout_stereo<< F<<endl<<endl;
 
+	   fout_stereo<<"--------------------立体校正参数-------------------"<<endl;   
+	   fout_stereo<<"左校正旋转矩阵Rl"<<endl;     
+	   fout_stereo<<Rl<<endl; 
+	   fout_stereo<<"右校正旋转矩阵Rr"<<endl;  
+	   fout_stereo<<Rr<<endl; 
+	   fout_stereo<<"左投影矩阵Pl"<<endl; 
+	   fout_stereo<<Pl<<endl; 
+	   fout_stereo<<"右投影矩阵Pr"<<endl; 
+	   fout_stereo<<Pr<<endl; 
+	   fout_stereo<<"重投影矩阵Q"<<endl; 
+	   fout_stereo<<Q<<endl; */
 
-	   GetDlgItem(IDC_STATUSBAR)->SetWindowText("保存文件成功");
+/*相机的内参数与畸变系数*/  
+fs << "cameraMatrixL" << cameraMatrixL << "distCoeffL" 
+	<< distCoeffL <<"cameraMatrixR" << cameraMatrixR << "distCoeffR" << distCoeffR;  
+
+/*相机之间的旋转矩阵与平移矩阵以及本质矩阵和基本矩阵*/
+fs<<"R"<<R<<"T"<<T<<"E"<<E<<"F"<<F;
+
+/*旋转矩阵，投影矩阵与重映射矩阵*/
+fs << "Rl" << Rl << "Rr" << Rr << "Pl" << Pl << "Pr" << Pr << "Q" << Q; 
+fs<<"mapLx"<<mapLx<<"mapLy"<<mapLy<<"mapRx"<<mapRx<<"mapRy"<<mapRy;
+GetDlgItem(IDC_STATUSBAR)->SetWindowText("保存文件成功");
+
+
+  fs.release();//释放资源
 }
 
 
@@ -306,4 +346,35 @@ void CStereoCali::cornerDetection(CString& picPath,CString strBasename,int image
 			}  
 			object_points.push_back(tempPointSet);  
 		}  
+	}
+
+	void CStereoCali::OnBnClickedRectify()
+	{
+		GetDlgItem(IDC_STATUSBAR)->SetWindowText("正在立体校正");
+
+		/*禁止其他按钮动作*/
+	CButton *b_startCali=(CButton*)GetDlgItem(IDC_STARTCALI);//IDC_STARTCALI为立体标定按钮的ID
+	CButton *b_stereoRectify=(CButton*)GetDlgItem(IDC_RECTIFY);//IDC_RECTIFY为立体校正按钮
+	CButton *b_saveFile=(CButton*)GetDlgItem(IDC_SAVEFILE);//IDC_SAVEFILE为保存数据按钮
+
+	b_startCali->EnableWindow(FALSE);          
+	b_saveFile->EnableWindow(FALSE);
+	b_stereoRectify->EnableWindow(FALSE);
+
+	/*立体校正*/
+		stereoRectify(cameraMatrixL, distCoeffL, 
+			                cameraMatrixR, distCoeffR, 
+							imageSize, R, T, Rl, Rr, Pl, Pr, 
+							Q, CALIB_ZERO_DISPARITY,
+                             0, imageSize,
+							 &validROIL, &validROIR);/*立体校正函数*/
+
+		initUndistortRectifyMap(cameraMatrixL, distCoeffL, Rl, Pl, imageSize, CV_32FC1, mapLx, mapLy);
+		initUndistortRectifyMap(cameraMatrixR, distCoeffR, Rr, Pr, imageSize, CV_32FC1, mapRx, mapRy);
+
+		isStereoRectified=true;
+		b_saveFile->EnableWindow(TRUE);
+		b_stereoRectify->EnableWindow(TRUE);
+		GetDlgItem(IDC_STATUSBAR)->SetWindowText("立体校正完成");
+
 	}

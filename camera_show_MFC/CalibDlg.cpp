@@ -322,7 +322,8 @@ void CCalibDlg::OnBnClickedSaveresult()
     }  
 	filePath.Replace("\\","\\\\");
 	fout=ofstream(filePath.GetBuffer(0));  /* 保存标定结果的文件 */  
-	
+	//FileStorage fs(filePath.GetBuffer(0), FileStorage::WRITE);
+
 	Mat rotation_matrix = Mat(3,3,CV_32FC1, Scalar::all(0)); /* 保存每幅图像的旋转矩阵 */  
     fout<<"相机内参数矩阵："<<endl;     
     fout<<cameraMatrix<<endl<<endl;     

@@ -35,12 +35,14 @@ public:
 };
 
 extern Ccamera_show_MFCApp theApp;
+
 extern Mat frame1;	//左相机的图像
 extern Mat frame2;  //右相机的图像
 extern Mat m_buffer1;//用来存储临时相片的
 extern Mat m_buffer2;//用来存储临时相片的
 extern int nIndx;		//相机的索引
 extern bool isOpen;	//判断相机是否打开
+extern bool isLeftOpen,isRightOpen;//分别用来判断左右相机是否打开
 extern Size imageSize;//待标定的照片的大小
 
 extern ofstream fout; //用来保存单个摄像头标定文件的ofstream对象
@@ -52,8 +54,8 @@ extern vector<Mat> tvecsMat;  /* 每幅图像的旋转向量 */
 extern vector<Mat> rvecsMat; /* 每幅图像的平移向量 */ 
 
 
-
-extern ofstream fout_stereo; //用来保存两个摄像头标定文件的ofstream对象
+/*以下是在双目中用到的变量*/
+//extern ofstream fout_stereo; //用来保存两个摄像头标定文件的ofstream对象
 extern Mat cameraMatrixL;
 extern Mat distCoeffL;
 
@@ -67,3 +69,15 @@ extern vector<Mat> tvecsMatR;  /* 每幅右相机图像的旋转向量 */
 extern vector<Mat> rvecsMatR; /* 每幅右相机图像的平移向量 */ 
 
 extern Mat R, T, E, F;    //R 旋转矢量 T平移矢量 E本征矩阵 F基础矩阵
+extern Rect validROIL;//图像校正之后，会对图像进行裁剪，这里的validROI就是指裁剪之后的区域  
+extern  Rect validROIR;
+
+extern Mat mapLx, mapLy, mapRx, mapRy;     	//映射表  
+extern Mat Rl, Rr, Pl, Pr, Q;              					//校正旋转矩阵R，投影矩阵P 重投影矩阵Q
+
+extern bool isStereoRectified;//判断是否已经经过立体校正，这样可以决定能否显示深度图像
+extern Mat grayImageL,grayImageR;//用来存储左右相机图像转换成的灰度图像
+extern Mat rectifyImageL,rectifyImageR;//用来存储左右相机图像转换成的灰度图像校正后的图像
+extern Mat disp,disp8;   //存储视差图
+extern int numberOfDisparities,SADWindowSize;//用来设置StereoBM对象的参数的；
+extern bool isFileRead;//是否已经读过相机的参数文件

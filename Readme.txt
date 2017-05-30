@@ -45,3 +45,24 @@ void CStereoCali::setVoidPath(CString & strPath)
 #include <iostream>
 #include <fstream>  
 还要使用 using namespace std;来说明一下命名空间。
+12.在单目标定CCalibDlg.cpp里面也和10采取了同样的做法
+
+13.在App对象的旁边创建了一个bool类型的全局变量isSteroRectified，用来判断两个相机是否经过了立体校正，如果是true，则可以显示
+深度图像。
+bool isStereoRectified=false;//判断是否已经经过立体校正，这样可以决定能否显示深度图像
+
+14设置了两个bool型变量分别判断左右相机是否打开：
+
+bool isLeftOpen,isRightOpen;//分别用来判断左右相机是否打开
+
+15.设置了两个Mat类型的全局变量，放在App对象旁边：
+Mat grayImageL,grayImageR;//用来存储左右相机图像转换成的灰度图像
+
+16.在Ccamera_show_MFCDlg类中添加了一个stereoMatch()函数用来设置StereoBM对象的参数
+17将numberOfDisparities和SADWindowSize设置成在App对象旁边的全局变量，用来设置StereoBM的部分参数，
+int numberOfDisparities=0,SADWindowSize=0;//用来设置StereoBM对象的参数的；
+
+18.在App旁边加一个bool类型的isFileRead变量，用来确定是否已经读过相机参数文件，以确定是否可以显示深度图像
+
+19.将App对象旁边的fout_stereo注释掉了，不再使用，而在立体标定类中定义了一个FileStorage fs(filePath.GetBuffer(0), FileStorage::WRITE);
+用来存储两个相机标定的参数和校正的参数，以及后面匹配的参数，保存为yml文件格式，方便后来读入。

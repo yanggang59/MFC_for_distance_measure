@@ -14,6 +14,9 @@
 #include "globalVar.h"
 #include <opencv2/opencv.hpp>
 #include "CvvImage.h"   //""表示在当前工程文件夹下寻找该文件，没有则在include的文件夹下寻找
+#include <mmsystem.h>
+#pragma comment(lib,"winmm.lib")
+
 
 using namespace cv;
 using namespace std;
@@ -30,8 +33,8 @@ using namespace std;
 //Mat frame1,frame2;
 // Ccamera_show_MFCDlg 对话框
 VideoCapture cap1,cap2;   //用来打开相机的
-VideoWriter writer1("E:\\test1.avi",CV_FOURCC('X','V','I','D'),30,Size(640,480),true);
-VideoWriter writer2("E:\\test2.avi",CV_FOURCC('X','V','I','D'),30,Size(640,480),true);
+VideoWriter writer1;
+VideoWriter writer2;
 //isOpen=false;
 
 
@@ -58,6 +61,8 @@ BEGIN_MESSAGE_MAP(Ccamera_show_MFCDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CALIB, &Ccamera_show_MFCDlg::OnBnClickedCalib)
 	ON_BN_CLICKED(IDC_STEREO_CALI, &Ccamera_show_MFCDlg::OnBnClickedStereoCali)
 	ON_BN_CLICKED(IDC_SHOT, &Ccamera_show_MFCDlg::OnBnClickedShot)
+	ON_BN_CLICKED(IDC_SHOWDISPARITY, &Ccamera_show_MFCDlg::OnBnClickedShowdisparity)
+	ON_BN_CLICKED(IDC_READFILE, &Ccamera_show_MFCDlg::OnBnClickedReadfile)
 END_MESSAGE_MAP()
 
 
@@ -146,12 +151,14 @@ void Ccamera_show_MFCDlg::OnBnClickedOpen()
 	if(0==nIndx)			//选中1号相机
 	{
 	cap1.open(0);
-	isOpen=true;
-	cap1>>frame1;
-	if(frame1.empty())
+	if(!cap1.isOpened())
 	{
+		AfxMessageBox("Error：无法打开相机1，请检查相机1是否存在");
 		return;
 	}
+	isOpen=true;
+	isLeftOpen=true;
+	cap1>>frame1;
 	showImg(frame1,IDC_CAMERA1);
 	SetTimer(1,30,NULL);
 	}
@@ -159,33 +166,39 @@ void Ccamera_show_MFCDlg::OnBnClickedOpen()
 	if(1==nIndx)				 //选中2号相机
 	{
 	cap2.open(1);
-	isOpen=true;		//相机处于打开状态
-	cap2>>frame2;
-	if(frame2.empty())
+	if(!cap2.isOpened())
 	{
+		AfxMessageBox("Error:无法打开相机2，请检查相机2是否存在");
 		return;
 	}
+	isOpen=true;		//相机处于打开状态
+	isRightOpen=true;//右相机处于打开状态
+	cap2>>frame2;
 	showImg(frame2,IDC_CAMERA2);
 	SetTimer(2,30,NULL);
 	}
 	if(nIndx==2)
 	{
-	isOpen=true;				//相机处于打开状态
-	cap1.open(0);
-	cap1>>frame1;
-	if(frame1.empty())
-	{
+		cap1.open(0);
+		cap2.open(1);
+		if(!cap1.isOpened())
+	{	
+		AfxMessageBox("Error：无法打开相机1,请检查相机1是否存在");
 		return;
 	}
-	showImg(frame1,IDC_CAMERA1);
-	SetTimer(1,30,NULL);
+		isLeftOpen=true;			//左相机处于打开状态
+		cap1>>frame1;
+		showImg(frame1,IDC_CAMERA1);
+		SetTimer(1,30,NULL);
+		isOpen=true;				//有一个相机处于打开状态
+		if(!cap2.isOpened())
+	{
+		AfxMessageBox("Error:无法打开相机2，请检查相机2是否存在");
+		return;
 	}
-	cap2.open(1);
+	isRightOpen=true;
+	}
 	cap2>>frame2;
-	if(frame2.empty())
-	{
-		return;
-	}
 	showImg(frame2,IDC_CAMERA2);
 	SetTimer(2,30,NULL);
 }
@@ -229,14 +242,24 @@ void Ccamera_show_MFCDlg::OnTimer(UINT_PTR nIDEvent)
 		}
 		case 3:
 			{
-				//string saveFilePath="E:\\test1.avi";
 				writer1<<frame1;
 				break;
 		   }
 		case 4:
 			{
-				//string saveFilePath="E:\\test2.avi";
 				writer2<<frame2;
+				break;
+			}
+		case 5:
+			{
+				if(frame1.empty()||frame2.empty()) return;
+				cvtColor(frame1, grayImageL, CV_BGR2GRAY);
+				cvtColor(frame2, grayImageR, CV_BGR2GRAY);
+				remap(grayImageL, rectifyImageL, mapLx, mapLy, INTER_LINEAR);
+				remap(grayImageR, rectifyImageR, mapRx, mapRy, INTER_LINEAR);
+				bm(rectifyImageL, rectifyImageR, disp);
+				disp.convertTo(disp8, CV_8U, 255 / ((numberOfDisparities * 16 + 16)*16.));//计算出的视差是CV_16S格式
+				showImg(disp8,IDC_DISPARITY);
 				break;
 			}
 	}
@@ -256,11 +279,11 @@ void Ccamera_show_MFCDlg::OnBnClickedClose()
 
 	cap2.release();
 	showImg(gray,IDC_CAMERA2);
+	showImg(gray,IDC_DISPARITY);
 	KillTimer(2);
-
 	KillTimer(3);
 	KillTimer(4);
-
+	KillTimer(5);
 	isOpen=false;
 	}
 	else
@@ -280,23 +303,27 @@ void Ccamera_show_MFCDlg::OnBnClickedVideo()
 		AfxMessageBox("请先打开摄像头");
 		return;
 	}
-	if(-1==nIndx)
-		{
-			//AfxMessageBox("you haven't selected any camera");
-			AfxMessageBox("请先选择相机");
-		}
-	if(0==nIndx)
+	if(isLeftOpen)
 	{
+		CFileDialog saveFileDlg(FALSE,".avi","E:\\cali_result\\");
+		saveFileDlg.m_ofn.lpstrTitle="请选择保存相机1视频的路径与文件名";
+		INT_PTR result = saveFileDlg.DoModal();  
+		CString filePath ;
+		if(result==IDOK)  filePath= saveFileDlg.GetPathName();  		
+	    filePath.Replace("\\","\\\\");
+		writer1=VideoWriter(filePath.GetBuffer(0),CV_FOURCC('X','V','I','D'),30,Size(640,480),true);
 		SetTimer(3,30,NULL);//保存camera1的视频
 	}
-	if(1==nIndx)
+	if(isRightOpen)
 	{
+		CFileDialog saveFileDlg(FALSE,".avi","E:\\cali_result\\");
+		saveFileDlg.m_ofn.lpstrTitle="请选择保存相机2视频的路径与文件名";
+		INT_PTR result = saveFileDlg.DoModal();  
+		CString filePath ;
+		if(result==IDOK)  filePath= saveFileDlg.GetPathName();  		
+	    filePath.Replace("\\","\\\\");
+		writer2=VideoWriter(filePath.GetBuffer(0),CV_FOURCC('X','V','I','D'),30,Size(640,480),true);
 		SetTimer(4,30,NULL);//保存camera2的视频
-	}
-	if(2==nIndx)
-	{
-	SetTimer(3,30,NULL);//保存camera1的视频
-	SetTimer(4,30,NULL);//保存camera2的视频
 	}
 
 }
@@ -361,18 +388,115 @@ void Ccamera_show_MFCDlg::OnBnClickedShot()
 	if(0==nIndx)				//选择的是1号相机
 	{
 	frame1.copyTo(m_buffer1);
+	sndPlaySound ("shot.wav",SND_ASYNC);
+	
 	}
 	if(1==nIndx)				//选择的是2号相机
 	{
 	frame2.copyTo(m_buffer2);
+	sndPlaySound ("shot.wav",SND_ASYNC);
 	}
 	if(2==nIndx)				//两个相机都选中，都拍照
 	{
 		frame1.copyTo(m_buffer1);
 		frame2.copyTo(m_buffer2);
+		sndPlaySound ("shot.wav",SND_ASYNC);
 	}
 	CShotDlg shotDlg;
 	shotDlg.DoModal();
 }
 
 
+
+
+void Ccamera_show_MFCDlg::OnBnClickedShowdisparity()
+{
+	/*如果左右相机都是打开的,而且两个相机已经立体标定了，则显示深度图,否则返回*/
+	if(!isOpen)
+	{
+		AfxMessageBox("请先打开相机");
+		return;
+	}
+	if(!isLeftOpen)
+	{
+		AfxMessageBox("左相机处于关闭状态，无法显示深度图");
+		return;
+	}
+	if(!isRightOpen)
+	{
+		AfxMessageBox("右相机处于关闭状态，无法显示深度图");
+		return;
+	}
+	if((!isStereoRectified)&&(!isFileRead))
+	{
+		AfxMessageBox("请先进行立体标定或者读入相机参数文件");
+		return;
+	}
+
+	cvtColor(frame1, grayImageL, CV_BGR2GRAY);
+	cvtColor(frame2, grayImageR, CV_BGR2GRAY);
+	/*
+	经过remap之后，左右相机的图像已经共面并且行对准了
+	*/
+	remap(grayImageL, rectifyImageL, mapLx, mapLy, INTER_LINEAR);
+	remap(grayImageR, rectifyImageR, mapRx, mapRy, INTER_LINEAR);
+	//int numberOfDisparities=0,SADWindowSize=0;已设置为App对象旁边的全局变量
+	//numberOfDisparities = numberOfDisparities > 0 ? numberOfDisparities : ((imageSize.width/8) + 15) & -16;
+	/*立体匹配*/
+	//StereoBM bm;//作为Public 变量
+	setBM(bm);
+    bm(rectifyImageL, rectifyImageR, disp);
+	disp.convertTo(disp8, CV_8U, 255 / ((numberOfDisparities * 16 + 16)*16.));//计算出的视差是CV_16S格式
+	showImg(disp8,IDC_DISPARITY);
+	SetTimer(5,30,NULL);
+}
+
+
+void Ccamera_show_MFCDlg::setBM(StereoBM & bm)
+{
+	bm.state->roi1 = validROIL;
+    bm.state->roi2 = validROIR;
+    bm.state->preFilterCap = 31;
+    bm.state->SADWindowSize = SADWindowSize > 0 ? SADWindowSize : 9;
+    bm.state->minDisparity = 0;
+    bm.state->numberOfDisparities = 16;
+    bm.state->textureThreshold = 10;
+    bm.state->uniquenessRatio = 15;
+    bm.state->speckleWindowSize = 100;
+    bm.state->speckleRange = 32;
+    bm.state->disp12MaxDiff = 1;
+}
+
+
+void Ccamera_show_MFCDlg::OnBnClickedReadfile()
+{
+	CFileDialog readFileDlg(TRUE,NULL,NULL,OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,"参数文件(yml)|*.yml||");
+	CString strPath;
+	if(IDOK==readFileDlg.DoModal())
+	{
+		strPath=readFileDlg.GetPathName();	
+	}
+	strPath.Replace("\\","\\\\");
+	FileStorage fs(strPath.GetBuffer(),FileStorage::READ);
+	if(!fs.isOpened())  AfxMessageBox("打开文件失败");
+		fs["cameraMatrixL"]>>cameraMatrixL;
+		fs["distCoeffL"]>>distCoeffL;
+		fs["cameraMatrixR"]>>cameraMatrixR;
+		fs["distCoeffR"]>>distCoeffR;
+		fs["R"]>>R;
+		fs["T"]>>T;
+		fs["E"]>>E;
+		fs["F"]>>F;
+		fs["Rl"]>>Rl;
+		fs["Rr"]>>Rr;
+		fs["Pl"]>>Pl;
+		fs["Pr"]>>Pr;
+		fs["Q"]>>Q;
+		fs["mapLx"]>>mapLx;
+		fs["mapLy"]>>mapLy;
+		fs["mapRx"]>>mapRx;
+		fs["mapRy"]>>mapRy;
+	fs.release();
+
+	isFileRead=true;
+}
